@@ -1,0 +1,487 @@
+Connect state object with modal--->
+
+//ObjectTask.js 
+import React,{Component} from "react";
+import NewModal from "./Modals/NewModal";
+
+class ObjectTask extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {        //state object created
+      firstName: "Arvind",
+      lastName: "Rai",
+      currentModal: false,
+    };
+  }
+
+
+  reverseModal = () => {     //when this function executes it makes the reverseModal from false to true.
+    this.setState({
+      currentModal: !this.state.currentModal,
+    });
+  };
+
+
+  updateData = (data) => {  //function use to change the data
+    this.setState({
+      firstName: data.firstName,
+      lastName: data.lastName,
+    });
+  };
+
+
+  render() {
+
+    console.log(this.state.showModal);
+    return (
+      <div>
+        {this.state.currentModal && (<NewModal
+            IsModalOpen={this.state.currentModal}
+            reverseModal={this.reverseModal}
+            userData={this.state}
+            updateData={this.updateData}
+          />
+        )}
+        <h2>First Name:{this.state.firstName}</h2><br/>
+        <h2>Last Name:{this.state.lastName}</h2><br/>
+        <input type='button' value='open modal' onClick={this.reverseModal} />
+    
+      </div>
+    );
+  }
+}
+
+
+export default ObjectTask;
+
+
+
+//NewModal.js
+
+import React, { Fragment } from "react";
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+class NewModal extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      firstName: this.props.userData.firstName,
+      lastName: this.props.userData.lastName,
+    };
+  }
+
+
+  toggle = () => {
+    this.props.reverseModal();
+  };
+
+  changeName = (e, bool) => {
+    if (bool) {
+      this.setState({
+        firstName: e.target.value,
+      });
+    } else {
+      this.setState({
+        lastName: e.target.value,
+      });
+    }
+  };
+  
+  updateData = () => {
+    this.props.updateData(this.state);
+    this.props.reverseModal();
+  };
+  render() {
+    // below this is a Modal
+    return (
+      <>
+        <Modal isOpen={this.props.IsModalOpen} toggle={this.toggle}>                    
+          <ModalHeader toggle={this.toggle} style={{color:"blue"}}>Service</ModalHeader>
+          <ModalBody style={{ textAlign: "center" }}>
+            <span>First Name:</span>{" "}
+            <input
+              type='text'
+              onChange={(e) => this.changeName(e, true)}
+            />{" "}
+            <br /><br/>
+            <span>Last Name:</span>{" "}
+            <input
+              type='text'
+              onChange={(e) => this.changeName(e, false)}
+            />{" "}
+            <br />
+          </ModalBody>
+          <ModalFooter>
+            <Button color='primary' onClick={this.updateData}>
+              Data Change
+            </Button>{" "}
+            <Button color='secondary' onClick={this.toggle}>
+              Hide
+            </Button>
+          </ModalFooter>
+        </Modal>
+      </>
+    );
+  }
+}
+export default NewModal;
+
+
+//App.js
+import React, { Fragment } from 'react';
+import logo from './logo.svg';
+import './App.css';
+import ObjectTask from './components/ObjectTask';
+import NewModal from './components/Modals/NewModal';
+import { Button } from 'reactstrap';
+
+function App() {
+  return (
+    <Fragment>
+      { //<Hello/>
+     // <Welcome name="Arvind Rai"></Welcome> 
+      <ObjectTask/>
+               
+    
+      }
+    </Fragment>
+  );
+}
+
+export default App;
+
+
+
+
+https://www.npmjs.com/package/reactstrap
+
+
+---------------------------------------------------------------XXXXXXXXXXXXXXXXXXXXXXXXXXXXX-------------------------------
+
+//Make the increment and decrement counter app using redux
+
+//counter
+
+//index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import * as serviceWorker from './serviceWorker';
+import {createStore} from 'redux'
+import {Provider} from 'react-redux'
+import CountDown from './components/CountDown'
+
+
+let initialState = {count: 0}
+
+function reducer(state = initialState, action) {
+  if(action.type === 'INCREMENT') {
+    return {
+      count: state.count + 1
+    };
+  }
+  if(action.type === 'DECREMENT') {
+    return {
+      count: state.count - 1
+    }
+  }
+  return state;
+}
+
+
+
+// const initialState={
+//     count:0
+// }
+// function reducer(state=initialState , action) {
+//     switch(action.type) {
+//         case 'INCREMENT':
+//           return {
+//             count: state.count + 1
+//           };
+//         case 'DECREMENT':
+//           return {
+//             count: state.count - 1
+//           };
+//         default:
+//           return state;
+//       }
+// }
+const store =createStore(reducer);
+const App=()=>(
+    <Provider store={store}>
+        <CountDown/> 
+    </Provider>
+)
+ReactDOM.render(<App />, document.getElementById('root'));
+// If you want your app to work offline and load faster, you can change
+// unregister() to register() below. Note this comes with some pitfalls.
+// Learn more about service workers: https://bit.ly/CRA-PWA
+serviceWorker.unregister();
+
+
+//CountDown.js
+
+import React, { Component } from 'react'
+import {connect} from "react-redux"
+
+
+
+export class CountDown extends Component {
+    increment = () => {
+        this.props.dispatch({
+          type: "INCREMENT"
+        });
+      };
+      decrement = () => {
+        this.props.dispatch({
+          type: "DECREMENT"
+        });
+      };
+      render() {
+        return (
+          <div className="counter" >
+            <h2>My Redux App</h2>
+            <div>
+            <button onClick={this.decrement} >Inc</button>
+            <span style={{color:"black"}}>{this.props.count}</span>
+            <button onClick={this.increment}>Dec</button>
+            </div>
+          </div>
+        );
+      }
+    }
+    function mapStateToProps(state) {
+      return{
+        count: state.count
+      }
+    };
+    export default connect(mapStateToProps)(CountDown);
+
+
+//index.css
+
+body {
+  margin: 30px;
+
+}
+
+.counter {
+  border: 3px dotted red;
+  padding: 20px;
+  width: 300px;
+  height: 250px;
+  text-align: center;
+  margin-left:900px;
+  margin-top: 300px;
+  font-family: "Source Sans Pro";
+  color: rgb(85, 85, 85);
+}
+
+.counter h2 {
+  margin: 0;
+  color:blue;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.counter > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.counter > div > button + span,
+.count {
+  margin: 0 20px;
+  font-size: 30px;
+  flex-basis: 40px;
+  flex-grow: 0;
+}
+
+.counter button {
+  border: 2px solid #ccc;
+  color:green;
+  font-size: 20px;
+  line-height: 0;
+  height: 40px;
+  width: 50px;
+  transition: 0.2s all;
+}
+
+.counter button:active,
+.counter button:focus {
+  outline: none;
+  box-shadow: 0 0 2px rgb(87, 156, 87);
+}
+
+.counter button:active {
+  background-color: rgb(87, 156, 87);
+  border-color: rgb(35, 141, 35);
+  color: #fff;
+}
+
+---------------------------------------------------------XXXXXXXXXXXXXXXXXXXXXXXX------------------------------------------
+//Counter app using hooks
+//index.js
+
+import React from "react";
+import { render } from "react-dom";
+import CountDown from "./components/CountDown";
+import "./index.css";
+
+const App = () => (
+  <div>
+    <CountDown />
+  </div>
+);
+
+render(<App />, document.getElementById("root"));
+
+
+
+
+//CountDown.js
+
+import React,{ useState } from 'react';
+//import {connect} from 'react-redux';
+
+
+function CountDown() {
+  const [count, setCount] = useState(0);
+
+  const increment = () => {
+    setCount(count + 1);
+  };
+
+  const decrement = () => {
+    setCount(count - 1);
+  };
+
+  return (
+    <div className="counter">
+      <h2>My Counter App</h2>
+      <div>
+        <button onClick={decrement}>Dec</button>
+        <span>{count}</span>
+        <button onClick={increment}>Inc</button>
+      </div>
+    </div>
+  );
+}
+
+export default CountDown;
+
+---------------------------------------XXXXXXXXXXXXXXXXXXXXXXXXXXXX-----------------------------------
+//Create a redux-form
+
+//profile.js
+import React from 'react'
+//import './App.css';
+import {connect} from 'react-redux'
+
+function Profile(props){
+    
+  
+    return (
+      <div className="App" style={{color:"green"}}>
+          <h3>My Complete Name</h3>
+        {props.formdata.firstname}<br/>
+        {props.formdata.lastname}
+  
+        
+        
+      </div>
+    );
+  }
+  const mapstateToProps=(state)=>{
+   console.log(state)
+   return{
+       formdata:state.form.myForm.values
+   }
+  }
+  export  default connect(mapstateToProps)(Profile);
+
+
+//index.js
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import App from './App';
+import * as serviceWorker from './serviceWorker';
+import {createStore,combineReducers,applyMiddleware} from 'redux'
+import {Provider} from 'react-redux'
+import {reducer as formReducer} from 'redux-form'
+
+
+const rootReducer = combineReducers({
+  form:formReducer
+})
+
+
+const store = createStore(rootReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__({
+  serialize: { 
+    options: {
+     undefined: true,
+     function: function(fn) { return fn.toString() }
+    }
+  }
+}));
+ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementById('root'));
+serviceWorker.unregister();
+
+
+//App.js
+
+import React, { Component, useState } from 'react';
+import logo from './logo.svg';
+import './App.css';
+import CountDown from './components/CountDown';
+import {Field,formValues,reduxForm} from 'redux-form';
+import Profile from './components/Profile'
+
+
+function App(props){
+  const{handleSubmit}=props;
+  const[showProfile,setShowProfile]=useState(false);
+
+  return (
+    <div className="App" style={{marginTop:"300px",fontSize:"40px"}}>
+      <form onSubmit={handleSubmit((formValues)=>{console.log(formValues)
+               setShowProfile(true)})}>
+
+         {/* <ObjectTask/> */}
+
+         <label style={{color:"red"}}>First Name: </label>
+         <Field style={{height:"20px"}} type="text" name="firstname" component="input"/><br/><br/>
+         <label style={{color:"red"}}>Last Name: </label>
+         <Field style={{height:"20px"}}type="text" name="lastname" component="input"/><br/><br/>
+         <button  style={{color:"blue",fontSize:"25px"}}type="submit">Submit</button>
+         <br/>
+         {showProfile?<Profile/>:null}
+         </form>
+    
+    </div>
+  );
+}
+
+export default reduxForm({
+  form:"myForm"
+})(App);
+
+-----------------------------------XXXXXXXXXXXXXXXXXXX-----------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
